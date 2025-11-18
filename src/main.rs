@@ -3,6 +3,8 @@ use std::io::{
     Write,
 };
 
+mod builtins;
+
 fn main() {
     loop {
         print!("$ ");
@@ -26,23 +28,10 @@ fn main() {
         let cmd = cmd_line[0];
         let args = &cmd_line[1..];
 
-        if cmd == "exit" {
-            if !args.is_empty() {
-                match cmd_line[1].parse() {
-                    Ok(status) => std::process::exit(status),
-                    Err(_) => eprintln!("Status code invalid: {}", cmd_line[1]),
-                }
-            } else {
-                std::process::exit(0);
-            }
-        } else if cmd == "echo" {
-            if args.is_empty() {
-                println!("");
-            } else {
-                println!("{}", args.join(" "));
-            }
-        } else {
-            println!("{input}: command not found");
+        match cmd {
+            "echo" => builtins::cmd_echo(args),
+            "exit" => builtins::cmd_exit(args),
+            _ => println!("{cmd}: command not found"),
         }
     }
 }
