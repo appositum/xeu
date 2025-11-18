@@ -35,6 +35,12 @@ fn main() {
             } else {
                 std::process::exit(0);
             }
+        } else if cmd == "echo" {
+            if args.is_empty() {
+                println!("");
+            } else {
+                println!("{}", args.join(" "));
+            }
         } else {
             println!("{input}: command not found");
         }
