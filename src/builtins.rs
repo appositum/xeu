@@ -1,6 +1,10 @@
-use std::env::{
-    current_dir,
-    set_current_dir,
+use std::{
+    env::{
+        current_dir,
+        set_current_dir,
+        var,
+    },
+    path::PathBuf,
 };
 
 const COMMANDS: &[&str] = &["cd", "echo", "exit", "pwd", "type"];
@@ -12,9 +16,20 @@ pub fn cmd_cd(args: &[&str]) {
     }
 
     let arg = args[0];
-    let mut destination = current_dir().unwrap();
+    let mut destination = PathBuf::new();
+    let home = var("HOME").unwrap();
 
-    destination.push(arg);
+    if arg == "~" || arg == "~/" {
+        destination.push(home);
+    } else if arg.starts_with("~/") {
+        let rest = &arg[2..];
+        destination.push(home);
+        destination.push(rest);
+    } else {
+        destination = current_dir().unwrap();
+
+        destination.push(arg);
+    }
 
     if let Err(_) = set_current_dir(destination) {
         println!("cd: {}: No such file or directory", arg);
