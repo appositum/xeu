@@ -32,9 +32,7 @@ pub fn get_bin_path(cmd: &str) -> Option<String> {
                             return Some(String::from(e.path().to_str().unwrap()));
                         }
                     },
-                    Err(_) => {
-                        return None;
-                    },
+                    Err(_) => {},
                 }
             }
         }
