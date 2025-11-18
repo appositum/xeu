@@ -3,7 +3,7 @@ use std::io::{
     Write,
 };
 
-mod builtins;
+use xeu;
 
 fn main() {
     loop {
@@ -28,10 +28,6 @@ fn main() {
         let cmd = cmd_line[0];
         let args = &cmd_line[1..];
 
-        match cmd {
-            "echo" => builtins::cmd_echo(args),
-            "exit" => builtins::cmd_exit(args),
-            _ => println!("{cmd}: command not found"),
-        }
+        xeu::execute(cmd, args);
     }
 }
