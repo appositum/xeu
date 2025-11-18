@@ -21,6 +21,22 @@ fn main() {
             continue;
         }
 
-        println!("{input}: command not found");
+        let cmd_line: Vec<&str> = input.split(' ').collect();
+
+        let cmd = cmd_line[0];
+        let args = &cmd_line[1..];
+
+        if cmd == "exit" {
+            if !args.is_empty() {
+                match cmd_line[1].parse() {
+                    Ok(status) => std::process::exit(status),
+                    Err(_) => eprintln!("Status code invalid: {}", cmd_line[1]),
+                }
+            } else {
+                std::process::exit(0);
+            }
+        } else {
+            println!("{input}: command not found");
+        }
     }
 }
