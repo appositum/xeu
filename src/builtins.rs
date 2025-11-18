@@ -15,9 +15,15 @@ pub fn cmd_cd(args: &[&str]) {
         return;
     }
 
-    let arg = args[0];
-    let mut destination = PathBuf::new();
     let home = var("HOME").unwrap();
+
+    if args.is_empty() {
+        set_current_dir(&home).unwrap();
+        return;
+    }
+
+    let mut destination = PathBuf::new();
+    let arg = args[0];
 
     if arg == "~" || arg == "~/" {
         destination.push(home);
