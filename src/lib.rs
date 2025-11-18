@@ -20,6 +20,7 @@ pub fn execute(cmd: &str, args: &[&str]) -> io::Result<()> {
     match cmd {
         "echo" => builtins::cmd_echo(args),
         "exit" => builtins::cmd_exit(args),
+        "pwd" => builtins::cmd_pwd(),
         "type" => builtins::cmd_type(args),
         _ => {
             if let Some(_) = get_bin_path(cmd) {

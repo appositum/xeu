@@ -1,4 +1,6 @@
-const COMMANDS: &[&str] = &["echo", "exit", "type"];
+use std::env::current_dir;
+
+const COMMANDS: &[&str] = &["echo", "exit", "pwd", "type"];
 
 pub fn cmd_echo(args: &[&str]) {
     if args.is_empty() {
@@ -17,6 +19,11 @@ pub fn cmd_exit(args: &[&str]) {
         Ok(status) => std::process::exit(status),
         Err(_) => eprintln!("Status code invalid: {}", args[0]),
     }
+}
+
+pub fn cmd_pwd() {
+    let cdir = current_dir().unwrap();
+    println!("{}", cdir.display());
 }
 
 pub fn cmd_type(args: &[&str]) {
