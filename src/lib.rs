@@ -4,20 +4,36 @@ use std::{
         var,
     },
     fs::read_dir,
+    io::{
+        self,
+        Write,
+    },
     path::PathBuf,
+    process::Command,
 };
 
 use is_executable::is_executable;
 
 mod builtins;
 
-pub fn execute(cmd: &str, args: &[&str]) {
+pub fn execute(cmd: &str, args: &[&str]) -> io::Result<()> {
     match cmd {
         "echo" => builtins::cmd_echo(args),
         "exit" => builtins::cmd_exit(args),
         "type" => builtins::cmd_type(args),
-        _ => println!("{cmd}: command not found"),
+        _ => {
+            if let Some(_) = get_bin_path(cmd) {
+                let output = Command::new(cmd).args(args).output()?;
+
+                io::stdout().write_all(&output.stdout)?;
+                io::stderr().write_all(&output.stderr)?;
+            } else {
+                println!("{cmd}: command not found");
+            }
+        },
     }
+
+    return Ok(());
 }
 
 pub fn get_bin_path(cmd: &str) -> Option<String> {

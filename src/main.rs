@@ -28,6 +28,6 @@ fn main() {
         let cmd = cmd_line[0];
         let args = &cmd_line[1..];
 
-        xeu::execute(cmd, args);
+        let _ = xeu::execute(cmd, args);
     }
 }
