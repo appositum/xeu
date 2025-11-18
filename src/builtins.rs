@@ -1,6 +1,25 @@
-use std::env::current_dir;
+use std::env::{
+    current_dir,
+    set_current_dir,
+};
 
-const COMMANDS: &[&str] = &["echo", "exit", "pwd", "type"];
+const COMMANDS: &[&str] = &["cd", "echo", "exit", "pwd", "type"];
+
+pub fn cmd_cd(args: &[&str]) {
+    if args.len() > 1 {
+        eprintln!("cd: too many arguments");
+        return;
+    }
+
+    let arg = args[0];
+    let mut destination = current_dir().unwrap();
+
+    destination.push(arg);
+
+    if let Err(_) = set_current_dir(destination) {
+        println!("cd: {}: No such file or directory", arg);
+    }
+}
 
 pub fn cmd_echo(args: &[&str]) {
     if args.is_empty() {

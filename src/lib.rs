@@ -18,6 +18,7 @@ mod builtins;
 
 pub fn execute(cmd: &str, args: &[&str]) -> io::Result<()> {
     match cmd {
+        "cd" => builtins::cmd_cd(args),
         "echo" => builtins::cmd_echo(args),
         "exit" => builtins::cmd_exit(args),
         "pwd" => builtins::cmd_pwd(),
