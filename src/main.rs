@@ -16,6 +16,11 @@ fn main() {
             .expect("Failed to read line");
 
         input = input.trim().to_string(); // remove newline
-        println!("{input}: command not found")
+
+        if input.is_empty() {
+            continue;
+        }
+
+        println!("{input}: command not found");
     }
 }
