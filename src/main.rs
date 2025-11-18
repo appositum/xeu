@@ -4,15 +4,18 @@ use std::io::{
 };
 
 fn main() {
-    print!("$ ");
-    io::stdout().flush().unwrap();
+    loop {
+        print!("$ ");
 
-    let mut input = String::new();
+        io::stdout().flush().unwrap();
 
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Failed to read line");
+        let mut input = String::new();
 
-    input.trim().to_string();
-    println!("{input}: command not found")
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+
+        input = input.trim().to_string(); // remove newline
+        println!("{input}: command not found")
+    }
 }
