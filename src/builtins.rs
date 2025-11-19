@@ -71,7 +71,7 @@ pub fn cmd_type(args: &[&str]) {
         let arg = &args[0];
 
         if COMMANDS.contains(&arg) {
-            println!("{arg} is shell builtin");
+            println!("{arg} is a shell builtin");
         } else {
             if let Some(cmd_path) = crate::get_bin_path(arg) {
                 println!("{arg} is {cmd_path}");
