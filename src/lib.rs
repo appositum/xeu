@@ -16,7 +16,9 @@ use is_executable::is_executable;
 
 mod builtins;
 
-pub fn execute(cmd: &str, args: &[&str]) -> io::Result<()> {
+pub fn execute(cmd: &str, args_str: String) -> io::Result<()> {
+    let args: Vec<String> = parse_args(args_str);
+
     match cmd {
         "cd" => builtins::cmd_cd(args),
         "echo" => builtins::cmd_echo(args),
@@ -57,4 +59,43 @@ pub fn get_bin_path(cmd: &str) -> Option<String> {
     }
 
     return None;
+}
+
+fn parse_args(input: String) -> Vec<String> {
+    let mut in_single_quotes = false;
+    let mut current_word: Vec<u8> = vec![];
+
+    let mut _in_double_quotes = false;
+    let mut _double_quoted_word: Vec<u8> = vec![];
+
+    let mut all_words: Vec<String> = vec![];
+
+    for byte in input.into_bytes() {
+        match byte {
+            b'\'' => {
+                in_single_quotes = !in_single_quotes;
+            },
+            b' ' => {
+                if !in_single_quotes {
+                    if !current_word.is_empty() {
+                        let word = String::from_utf8(current_word.clone()).unwrap();
+                        all_words.push(word);
+                        current_word.clear();
+                    }
+                } else {
+                    current_word.push(byte);
+                }
+            },
+            _ => {
+                current_word.push(byte);
+            },
+        }
+    }
+
+    if !current_word.is_empty() {
+        let word = String::from_utf8(current_word.clone()).unwrap();
+        all_words.push(word);
+    }
+
+    return all_words;
 }

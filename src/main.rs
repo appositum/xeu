@@ -23,11 +23,13 @@ fn main() {
             continue;
         }
 
-        let cmd_line: Vec<&str> = input.split(' ').collect();
-
-        let cmd = cmd_line[0];
-        let args = &cmd_line[1..];
-
-        let _ = xeu::execute(cmd, args);
+        match input.split_once(' ') {
+            None => {
+                let _ = xeu::execute(input.as_str(), String::new());
+            },
+            Some((cmd, args)) => {
+                let _ = xeu::execute(cmd, args.to_string());
+            },
+        }
     }
 }
