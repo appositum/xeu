@@ -63,20 +63,29 @@ pub fn get_bin_path(cmd: &str) -> Option<String> {
 
 fn parse_args(input: String) -> Vec<String> {
     let mut in_single_quotes = false;
+    let mut in_double_quotes = false;
+
     let mut current_word: Vec<u8> = vec![];
-
-    let mut _in_double_quotes = false;
-    let mut _double_quoted_word: Vec<u8> = vec![];
-
     let mut all_words: Vec<String> = vec![];
 
     for byte in input.into_bytes() {
         match byte {
             b'\'' => {
-                in_single_quotes = !in_single_quotes;
+                if in_double_quotes {
+                    current_word.push(byte);
+                } else {
+                    in_single_quotes = !in_single_quotes;
+                }
+            },
+            b'\"' => {
+                if in_single_quotes {
+                    current_word.push(byte);
+                } else {
+                    in_double_quotes = !in_double_quotes;
+                }
             },
             b' ' => {
-                if !in_single_quotes {
+                if !in_single_quotes && !in_double_quotes {
                     if !current_word.is_empty() {
                         let word = String::from_utf8(current_word.clone()).unwrap();
                         all_words.push(word);
