@@ -68,7 +68,15 @@ fn parse_args(input: String) -> Vec<String> {
     let mut current_word: Vec<u8> = vec![];
     let mut all_words: Vec<String> = vec![];
 
+    let mut escaped = false;
+
     for byte in input.into_bytes() {
+        if escaped {
+            current_word.push(byte);
+            escaped = false;
+            continue;
+        }
+
         match byte {
             b'\'' => {
                 if in_double_quotes {
@@ -82,6 +90,13 @@ fn parse_args(input: String) -> Vec<String> {
                     current_word.push(byte);
                 } else {
                     in_double_quotes = !in_double_quotes;
+                }
+            },
+            b'\\' => {
+                if !in_single_quotes && !in_double_quotes {
+                    escaped = true;
+                } else {
+                    current_word.push(byte);
                 }
             },
             b' ' => {
