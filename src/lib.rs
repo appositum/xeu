@@ -96,10 +96,24 @@ fn parse_args(input: String) -> Vec<String> {
                     }
                 },
                 b'\\' => {
-                    if !in_single_quotes && !in_double_quotes {
+                    if in_double_quotes {
+                        if let Some(&peek) = iter.peek() {
+                            if peek == b'\"' {
+                                escaped = true;
+                            } else {
+                                current_word.push(byte);
+                            }
+                        }
+                    } else if in_single_quotes {
+                        if let Some(&peek) = iter.peek() {
+                            if peek == b'\'' {
+                                escaped = true;
+                            } else {
+                                current_word.push(byte);
+                            }
+                        }
+                    } else if !in_single_quotes && !in_double_quotes {
                         escaped = true;
-                    } else {
-                        current_word.push(byte);
                     }
                 },
                 b' ' => {
