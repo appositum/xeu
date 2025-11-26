@@ -70,49 +70,55 @@ fn parse_args(input: String) -> Vec<String> {
 
     let mut escaped = false;
 
-    for byte in input.into_bytes() {
-        if escaped {
-            current_word.push(byte);
-            escaped = false;
-            continue;
-        }
+    let mut iter = input.bytes().peekable();
 
-        match byte {
-            b'\'' => {
-                if in_double_quotes {
-                    current_word.push(byte);
-                } else {
-                    in_single_quotes = !in_single_quotes;
-                }
-            },
-            b'\"' => {
-                if in_single_quotes {
-                    current_word.push(byte);
-                } else {
-                    in_double_quotes = !in_double_quotes;
-                }
-            },
-            b'\\' => {
-                if !in_single_quotes && !in_double_quotes {
-                    escaped = true;
-                } else {
-                    current_word.push(byte);
-                }
-            },
-            b' ' => {
-                if !in_single_quotes && !in_double_quotes {
-                    if !current_word.is_empty() {
-                        let word = String::from_utf8(current_word.clone()).unwrap();
-                        all_words.push(word);
-                        current_word.clear();
-                    }
-                } else {
-                    current_word.push(byte);
-                }
-            },
-            _ => {
+    loop {
+        if let Some(byte) = iter.next() {
+            if escaped {
                 current_word.push(byte);
-            },
+                escaped = false;
+                continue;
+            }
+
+            match byte {
+                b'\'' => {
+                    if in_double_quotes {
+                        current_word.push(byte);
+                    } else {
+                        in_single_quotes = !in_single_quotes;
+                    }
+                },
+                b'\"' => {
+                    if in_single_quotes {
+                        current_word.push(byte);
+                    } else {
+                        in_double_quotes = !in_double_quotes;
+                    }
+                },
+                b'\\' => {
+                    if !in_single_quotes && !in_double_quotes {
+                        escaped = true;
+                    } else {
+                        current_word.push(byte);
+                    }
+                },
+                b' ' => {
+                    if !in_single_quotes && !in_double_quotes {
+                        if !current_word.is_empty() {
+                            let word = String::from_utf8(current_word.clone()).unwrap();
+                            all_words.push(word);
+                            current_word.clear();
+                        }
+                    } else {
+                        current_word.push(byte);
+                    }
+                },
+                _ => {
+                    current_word.push(byte);
+                },
+            }
+        } else {
+            break;
         }
     }
 
