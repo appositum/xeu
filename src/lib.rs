@@ -96,24 +96,33 @@ fn parse_args(input: String) -> Vec<String> {
                     }
                 },
                 b'\\' => {
-                    if in_double_quotes {
-                        if let Some(&peek) = iter.peek() {
-                            if peek == b'\"' {
+                    if let Some(&peek) = iter.peek() {
+                        match peek {
+                            b'\"' => {
+                                if in_double_quotes || !in_single_quotes {
+                                    escaped = true;
+                                } else {
+                                    current_word.push(byte);
+                                }
+                            },
+                            b'\'' => {
+                                if in_single_quotes || !in_double_quotes {
+                                    escaped = true;
+                                } else {
+                                    current_word.push(byte);
+                                }
+                            },
+                            b'\\' => {
                                 escaped = true;
-                            } else {
-                                current_word.push(byte);
-                            }
+                            },
+                            _ => {
+                                if !in_single_quotes && !in_double_quotes {
+                                    escaped = true;
+                                } else {
+                                    current_word.push(byte);
+                                }
+                            },
                         }
-                    } else if in_single_quotes {
-                        if let Some(&peek) = iter.peek() {
-                            if peek == b'\'' {
-                                escaped = true;
-                            } else {
-                                current_word.push(byte);
-                            }
-                        }
-                    } else if !in_single_quotes && !in_double_quotes {
-                        escaped = true;
                     }
                 },
                 b' ' => {
