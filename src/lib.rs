@@ -52,7 +52,7 @@ pub fn execute(input: String) -> io::Result<()> {
     return Ok(());
 }
 
-pub fn get_bin_path(cmd: &str) -> Option<String> {
+fn get_bin_path(cmd: &str) -> Option<String> {
     let directories: Vec<PathBuf> = split_paths(&var("PATH").unwrap()).collect();
 
     for dir in directories {
