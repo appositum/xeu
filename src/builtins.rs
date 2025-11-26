@@ -70,6 +70,7 @@ pub fn cmd_type(args: Vec<String>) {
         .map(String::from)
         .collect();
 
+    // TODO: should return status code 1 if argument is empty
     if !args.is_empty() {
         let arg = &args[0];
 

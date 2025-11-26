@@ -16,8 +16,20 @@ use is_executable::is_executable;
 
 mod builtins;
 
-pub fn execute(cmd: &str, args_str: String) -> io::Result<()> {
-    let args: Vec<String> = parse_args(args_str);
+pub fn execute(input: String) -> io::Result<()> {
+    let parsed_cmd_line: Vec<String> = parse_args(input);
+
+    if parsed_cmd_line.is_empty() {
+        // TODO: this should send a status code 123.
+        // And ideally, it would also return `Err`, not `Ok`.
+        // It might be time to create an error module.
+        println!("xeu: The expanded command was empty");
+        return Ok(());
+    }
+
+    let cmd = parsed_cmd_line[0].as_str();
+
+    let args: Vec<String> = parsed_cmd_line[1..].to_vec();
 
     match cmd {
         "cd" => builtins::cmd_cd(args),
