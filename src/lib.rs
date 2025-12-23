@@ -39,7 +39,8 @@ pub fn execute(input: String) -> io::Result<()> {
         "type" => builtins::cmd_type(args),
         _ => {
             if let Some(_) = get_bin_path(cmd) {
-                let output = Command::new(cmd).args(args).output()?;
+                let process = Command::new(cmd).args(args).spawn()?;
+                let output = process.wait_with_output()?;
 
                 io::stdout().write_all(&output.stdout)?;
                 io::stderr().write_all(&output.stderr)?;
