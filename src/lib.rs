@@ -54,7 +54,8 @@ pub fn execute(input: String) -> io::Result<()> {
 }
 
 fn get_bin_path(cmd: &str) -> Option<String> {
-    let directories: Vec<PathBuf> = split_paths(&var("PATH").unwrap()).collect();
+    let directories: Vec<PathBuf> =
+        split_paths(&var("PATH").unwrap()).collect();
 
     for dir in directories {
         if let Ok(entries) = read_dir(dir) {
@@ -62,7 +63,9 @@ fn get_bin_path(cmd: &str) -> Option<String> {
                 match entry {
                     Ok(e) => {
                         if e.file_name() == cmd && is_executable(e.path()) {
-                            return Some(String::from(e.path().to_str().unwrap()));
+                            return Some(String::from(
+                                e.path().to_str().unwrap(),
+                            ));
                         }
                     },
                     Err(_) => {},
@@ -141,7 +144,8 @@ fn parse_args(input: String) -> Vec<String> {
                 b' ' => {
                     if !in_single_quotes && !in_double_quotes {
                         if !current_word.is_empty() {
-                            let word = String::from_utf8(current_word.clone()).unwrap();
+                            let word = String::from_utf8(current_word.clone())
+                                .unwrap();
                             all_words.push(word);
                             current_word.clear();
                         }
