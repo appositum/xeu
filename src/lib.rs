@@ -60,15 +60,10 @@ fn get_bin_path(cmd: &str) -> Option<String> {
     for dir in directories {
         if let Ok(entries) = read_dir(dir) {
             for entry in entries {
-                match entry {
-                    Ok(e) => {
-                        if e.file_name() == cmd && is_executable(e.path()) {
-                            return Some(String::from(
-                                e.path().to_str().unwrap(),
-                            ));
-                        }
-                    },
-                    Err(_) => {},
+                if let Ok(e) = entry {
+                    if e.file_name() == cmd && is_executable(e.path()) {
+                        return Some(String::from(e.path().to_str().unwrap()));
+                    }
                 }
             }
         }
