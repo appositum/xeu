@@ -9,43 +9,50 @@ use std::{
         Write,
     },
     path::PathBuf,
-    process::Command,
+    process::{
+        self,
+        Stdio,
+    },
 };
 
 use is_executable::is_executable;
 
 mod builtins;
 
+struct Command {
+    name: String,
+    args: Vec<String>,
+    redirection: Option<Box<Command>>,
+}
+
 pub fn execute(input: String) -> io::Result<()> {
-    let parsed_cmd_line: Vec<String> = parse_args(input);
+    match parse_args(input) {
+        Err(e) => {
+            eprintln!("{e}");
+            return Ok(());
+        },
+        Ok(command) => {
+            let cmd = command.name.as_str();
+            let args = command.args;
 
-    if parsed_cmd_line.is_empty() {
-        // TODO: this should send a status code 123.
-        // And ideally, it would also return `Err`, not `Ok`.
-        // It might be time to create an error module.
-        println!("xeu: The expanded command was empty");
-        return Ok(());
-    }
+            match cmd {
+                "cd" => builtins::cmd_cd(args),
+                "echo" => builtins::cmd_echo(args),
+                "exit" => builtins::cmd_exit(args),
+                "pwd" => builtins::cmd_pwd(),
+                "type" => builtins::cmd_type(args),
+                _ => {
+                    if let Some(_) = get_bin_path(cmd) {
+                        let process = process::Command::new(cmd).args(args).spawn()?;
 
-    let cmd = parsed_cmd_line[0].as_str();
+                        let output = process.wait_with_output()?;
 
-    let args: Vec<String> = parsed_cmd_line[1..].to_vec();
-
-    match cmd {
-        "cd" => builtins::cmd_cd(args),
-        "echo" => builtins::cmd_echo(args),
-        "exit" => builtins::cmd_exit(args),
-        "pwd" => builtins::cmd_pwd(),
-        "type" => builtins::cmd_type(args),
-        _ => {
-            if let Some(_) = get_bin_path(cmd) {
-                let process = Command::new(cmd).args(args).spawn()?;
-                let output = process.wait_with_output()?;
-
-                io::stdout().write_all(&output.stdout)?;
-                io::stderr().write_all(&output.stderr)?;
-            } else {
-                println!("{cmd}: command not found");
+                        io::stdout().write_all(&output.stdout)?;
+                        io::stderr().write_all(&output.stderr)?;
+                    } else {
+                        println!("{cmd}: command not found");
+                    }
+                },
             }
         },
     }
@@ -54,8 +61,7 @@ pub fn execute(input: String) -> io::Result<()> {
 }
 
 fn get_bin_path(cmd: &str) -> Option<String> {
-    let directories: Vec<PathBuf> =
-        split_paths(&var("PATH").unwrap()).collect();
+    let directories: Vec<PathBuf> = split_paths(&var("PATH").unwrap()).collect();
 
     for dir in directories {
         if let Ok(entries) = read_dir(dir) {
@@ -72,7 +78,7 @@ fn get_bin_path(cmd: &str) -> Option<String> {
     return None;
 }
 
-fn parse_args(input: String) -> Vec<String> {
+fn parse_args(input: String) -> Result<Command, &'static str> {
     let mut in_single_quotes = false;
     let mut in_double_quotes = false;
 
@@ -148,8 +154,7 @@ fn parse_args(input: String) -> Vec<String> {
                 b' ' => {
                     if !in_single_quotes && !in_double_quotes {
                         if !current_word.is_empty() {
-                            let word = String::from_utf8(current_word.clone())
-                                .unwrap();
+                            let word = String::from_utf8(current_word.clone()).unwrap();
                             all_words.push(word);
                             current_word.clear();
                         }
@@ -172,9 +177,20 @@ fn parse_args(input: String) -> Vec<String> {
         commands_with_redirections.push(all_words.clone());
     }
 
-    // TODO: use custom `Command` struct
     println!("commands_with_redirections: {commands_with_redirections:?}");
     println!("all_words: {all_words:?}");
 
-    return all_words;
+    if all_words.is_empty() {
+        // TODO: this should send a status code 123.
+        // And ideally, it would also return `Err`, not `Ok`.
+        // It might be time to create an error module.
+        return Err("xeu: The expanded command was empty");
+    }
+
+    return Ok(Command {
+        name: all_words[0].clone(),
+        args: all_words[1..].to_vec(),
+        // TODO: implement the redirections
+        redirection: None,
+    });
 }
