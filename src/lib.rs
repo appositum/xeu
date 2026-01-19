@@ -78,6 +78,7 @@ fn parse_args(input: String) -> Vec<String> {
 
     let mut current_word: Vec<u8> = vec![];
     let mut all_words: Vec<String> = vec![];
+    let mut commands_with_redirections: Vec<Vec<String>> = vec![];
 
     let mut escaped = false;
 
@@ -136,6 +137,14 @@ fn parse_args(input: String) -> Vec<String> {
                         }
                     }
                 },
+                b'>' => {
+                    if !in_single_quotes && !in_double_quotes {
+                        commands_with_redirections.push(all_words.clone());
+                        all_words.clear();
+                    } else {
+                        current_word.push(byte);
+                    }
+                },
                 b' ' => {
                     if !in_single_quotes && !in_double_quotes {
                         if !current_word.is_empty() {
@@ -160,7 +169,12 @@ fn parse_args(input: String) -> Vec<String> {
     if !current_word.is_empty() {
         let word = String::from_utf8(current_word.clone()).unwrap();
         all_words.push(word);
+        commands_with_redirections.push(all_words.clone());
     }
+
+    // TODO: use custom `Command` struct
+    println!("commands_with_redirections: {commands_with_redirections:?}");
+    println!("all_words: {all_words:?}");
 
     return all_words;
 }
